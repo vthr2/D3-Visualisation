@@ -133,6 +133,8 @@ d3.csv(dataPath) //Read in Data
 		dropDownMenu
 			.append("select")
 			.selectAll("option")
+				.attr("value", "all")
+				.text("all")
 			.data(nestedData)
 			.enter()	
 			.append("option")

@@ -2,7 +2,7 @@ body {
 	color: #243f60;
 }
 
-div
+#myDiv
 {
 	width: 600px;
 	height: 1200px;
@@ -10,6 +10,7 @@ div
 
 
 #myDiv2{
+
 	width: 800px;
 	height: 600px;
 	
