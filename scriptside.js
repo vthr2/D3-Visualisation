@@ -124,14 +124,13 @@ d3.csv(dataPath) //Read in Data
 		//Draw up graph 2 first
 		updateTimeline(nestedData2);
 		
-		d3.select("body")
+		/*d3.select("body")
 			.append("div")
-			.attr("id","dropDownMenu")
+			.attr("id","dropDownMenu")*/
 		//Add dropdown menu for countries to filter position bar chart by country
-		var dropDownMenu = d3.select("#dropDownMenu");
+		var dropDownMenu = d3.select("#dropDownList");
 	
 		dropDownMenu
-			.append("select")
 			.selectAll("option")
 			.data(nestedData)
 			.enter()	
@@ -146,10 +145,16 @@ d3.csv(dataPath) //Read in Data
 		dropDownMenu
 			.on("change",function(){
 				var menuItem = d3.select(this)
-					.select("select")
 					.property("value");
 			console.log(menuItem);
-			filterData(menuItem);
+			if(menuItem != "All")
+			{
+				filterData(menuItem);
+			}
+			else
+			{
+				updateTimeline(nestedData2);
+			}
 			//updateTimeline(updatedData);
 		})
 	
