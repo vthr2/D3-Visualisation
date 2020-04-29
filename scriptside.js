@@ -5,7 +5,7 @@
 // 2. Add X-axis to first graph and a title
 // 3. Pick different colors, so the position and first graph dont both have orange
 // 4. Make code for first graph better by adding scales like was done in second graph
-// 5. Change sorting stuff better, maybe first have GK,DEF,MF,FWD And then option to sort
+// 5. Make color the same for each position when filtering
 // 6. Add All option for filter which ouputs all countries data
 
 //THINGS THAT COULD BE ADDED TO MAKE GRAPHS BETTER, IDEAS
@@ -133,8 +133,6 @@ d3.csv(dataPath) //Read in Data
 		dropDownMenu
 			.append("select")
 			.selectAll("option")
-				.attr("value", "all")
-				.text("all")
 			.data(nestedData)
 			.enter()	
 			.append("option")
