@@ -5,9 +5,11 @@
 // 2. Add X-axis to first graph and a title
 // 3. Pick different colors, so the position and first graph dont both have orange
 // 4. Make code for first graph better by adding scales like was done in second graph
+// 5. Change sorting stuff better, maybe first have GK,DEF,MF,FWD And then option to sort
+// 6. Add All option for filter which ouputs all countries data
 
 //THINGS THAT COULD BE ADDED TO MAKE GRAPHS BETTER, IDEAS
-//1. Make a sorter to sort ascending descending
+//1. Make a sort button or something to sort ascending or descending
 //2. Add a dropdown list so it is possible to both see graphs of total caps by positions and average caps by position, also possible for first graph
 //3. Hover over charts to get values
 
@@ -35,7 +37,6 @@ d3.csv(dataPath) //Read in Data
         //console.table(data);
         //console.log(data);
         
-	
 		//Dataset for graph 1
         var nestedData = d3.nest()	//Create seperate datset for total caps of each coutnry
             .key(function(d){
@@ -50,8 +51,9 @@ d3.csv(dataPath) //Read in Data
             .entries(data);
         console.log(nestedData);
 		
-		//Dataset for graph 2
-		  var nestedData2 = d3.nest()	//Create seperate datset for total caps of each positoin
+
+		//Dataset for graph2
+	  var nestedData2 = d3.nest()	//Create seperate datset for total caps of each positoin
             .key(function(d){
                 return d.position;
             })
@@ -63,6 +65,23 @@ d3.csv(dataPath) //Read in Data
             })
             .entries(data);
         console.log(nestedData2);
+		
+		//Dataset for filtering graph 2
+		  var nestedData3 = d3.nest()	//Create seperate datset for total caps of each positoin
+            .key(function(d){
+                return d.team;
+            })
+		  	.key(function(d){
+				return d.position;
+			})
+            .rollup(function(leaves)
+            {
+                return d3.mean(leaves,function(d){ 	//Get mean caps of each country together
+                return parseInt(d.Caps);
+                })
+            })
+            .entries(data);
+        console.log(nestedData3);
 	
 	
 		//Sort datasets so it is displayed sorted by default
@@ -73,6 +92,8 @@ d3.csv(dataPath) //Read in Data
 		nestedData2.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
+	
+
 		//ADD RECTANGLES WITH WIDTH BASED ON SUM OF CAPS
 		mySVG.selectAll("rect") 
 		.data(nestedData)
@@ -99,24 +120,83 @@ d3.csv(dataPath) //Read in Data
 			.text(function(d){
 				return d.key;
 		})
-
-
+		
+		//Draw up graph 2 first
+		updateTimeline(nestedData2);
+		
+		d3.select("body")
+			.append("div")
+			.attr("id","dropDownMenu")
+		//Add dropdown menu for countries to filter position bar chart by country
+		var dropDownMenu = d3.select("#dropDownMenu");
+	
+		dropDownMenu
+			.append("select")
+			.selectAll("option")
+			.data(nestedData)
+			.enter()	
+			.append("option")
+				.attr("value",function(d){
+					return d.key;
+				})
+				.text(function(d){
+					return d.key;
+				})
+			
+		dropDownMenu
+			.on("change",function(){
+				var menuItem = d3.select(this)
+					.select("select")
+					.property("value");
+			console.log(menuItem);
+			filterData(menuItem);
+			//updateTimeline(updatedData);
+		})
 	
 	
-	
-		//Make scales for second positions of footballers graph
-		xScale.domain(nestedData2.map(function(d)
+		function filterData(country)
 		{
-			console.log(d.key)
-			return d.key;
-		}))
-		yScale.domain([0,d3.max(nestedData2,function(d)
+			//filteredData = JSON.parse(JSON.stringify(nestedData3))
+			//console.log(filteredData)
+			nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
+			{	
+				if(d.key == country)
+				{
+					updateTimeline(d.values);
+					return;
+					//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
+				}	
+			})
+			
+		}
+		
+		function updateTimeline(updatedData)
 		{
-			console.log(d.value)
-			return d.value;
-		})])
-		mySVG2.selectAll(".bar")
-			.data(nestedData2)
+			
+			//For sorting, make better later
+			
+			updatedData.sort(function(a,b){
+				return d3.descending(a.value,b.value)
+			})
+
+			
+			console.log(updatedData);
+			
+				xScale.domain(updatedData.map(function(d)
+				{
+					console.log(d.key)
+					return d.key;
+				}))
+				yScale.domain([0,d3.max(updatedData,function(d)
+				{
+					console.log(d.value)
+					return d.value;
+				})])
+			mySVG2.selectAll(".bar")
+				.remove();
+			
+			mySVG2.selectAll(".bar")
+			.data(updatedData)
 			.enter()
 			.append("rect") //Add rectangles and adjust size of width, height
 				.attr("id","rect2")
@@ -134,34 +214,44 @@ d3.csv(dataPath) //Read in Data
 				})
 				.style("fill",function(d){
 					return categoricalScale(d.key) //Add different colours for each position
-		})
-	
-		//Add label for each position to bar chart
-		mySVG2.selectAll("text")
-			.data(nestedData2)
-			.enter()
-			.append("text")
-				.attr("x", function(d){
-						return xScale(d.key)+15;
-					})
-				.style("font-size", "50px")
-				.attr("y",height-margin-15)
-				.text(function(d){
-					return d.key;
 				})
-		//Add Y-axis
-		mySVG2.append("g")
-			.attr("transform", "translate("+margin+ ",0)")
-			.style("font-size","25px")
-			.call(d3.axisLeft(yScale));
+			//Update Axis and label for positions
+			mySVG2.selectAll("g")
+				.remove();
+			mySVG2.selectAll("text")
+				.remove();
+				mySVG2.selectAll("text")
+				.data(updatedData)
+				.enter()
+				.append("text")
+					.attr("x", function(d){
+							return xScale(d.key)+15;
+						})
+					.style("font-size", "50px")
+					.attr("y",height-margin-15)
+					.text(function(d){
+						return d.key;
+					})
+			//Update y-axis
+			mySVG2.append("g")
+					.attr("transform", "translate("+margin+ ",0)")
+					.style("font-size","25px")
+					.call(d3.axisLeft(yScale));
+		
+			//Add title to plot
+			mySVG2.append("text")
+				.attr("x", 135)             
+				.attr("y", height-20)
+				.style("font-size", "40px") 
+				.text("Average Caps by Position");
+			
+			}
+			
+	
 	
 
-		//Add title to plot
-		mySVG2.append("text")
-			.attr("x", 135)             
-			.attr("y", height-20)
-			.style("font-size", "40px") 
-			.text("Average Caps by Position");
-	
+			
+
+
 })
 
