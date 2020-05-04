@@ -4,7 +4,6 @@
 
 //THINGS THAT COULD BE ADDED TO MAKE GRAPHS BETTER, IDEAS
 //1. Make a sort button or something to sort ascending or descending
-//2. Add a dropdown list so it is possible to both see graphs of total caps by positions and average caps by position, also possible for first graph
 //3. Hover over charts to get values
 
 var dataPath = "data/WorlCupSquadsInfoVis.csv"; //Datapath for data which will be read in
@@ -171,6 +170,10 @@ d3.csv(dataPath) //Read in Data
     .attr("height", yScale1.bandwidth() )
     .attr("fill", "pink")
 	.attr('stroke', 'black')
+	.on("mouseenter", function(d,i){
+	 	d3.select(this)
+	  		.style("fill",)
+  })
 
 		//Add label of each country to bar chart
 	mySVG.selectAll(".label")
@@ -221,14 +224,17 @@ d3.csv(dataPath) //Read in Data
 		
 		myButton	
 			.on("click",function(){
+			var changeChart = document.getElementById("dropDownList").value;
 			counter++;
 			if(counter%2 != 0)
 			{
-				updateTimeline(nestedAge);
+				updateTimeline(nestedAge)
+				filterData(changeChart);
 			}
 			else
 			{
 				updateTimeline(nestedData2);
+				filterData(changeChart);
 			}
 		})
 		
