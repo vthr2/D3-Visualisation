@@ -358,7 +358,7 @@ d3.csv(dataPath) //Read in Data
 					.attr("x", 50)             
 					.attr("y", height-50)
 					.style("font-size", "25px") 
-					.text("Average Caps by Age");
+					.text("Average Age by Position");
 			}
 		}
 			
