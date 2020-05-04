@@ -7,10 +7,21 @@ div
 	width: 600px;
 	height: 1200px;
 }
+.column {
+  float: left;
+  width: 33.33%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
 
 #myDiv{
 
-	width: 800px;
+	width: 1200px;
 	height: 600px;
 	margin-top: 20px;
 	margin-bottom: 20px;
@@ -19,10 +30,13 @@ div
 
 }
 
+#myDiv3{
+	margin-bottom: 1000px;
+}
 
 #myDiv2{
 
-	width: 800px;
+	width: 1200px;
 	height: 600px;
 	margin-top: 20px;
 	margin-bottom: 20px;
@@ -31,6 +45,13 @@ div
 
 }
 
+#myDiv3{
+
+ 	position: fixed;
+    bottom: 0;
+    right: 0;
+
+}
 
 svg{
 	width: 100%;

@@ -13,7 +13,9 @@ var mySVG2 = d3.select("#MySVG2"); //Second graph
 var mySVG3 = d3.select("#MySVG3"); //Thrid Graph
 var margin = 80;					//Margin for second graph
 var width = document.getElementById("MySVG2").clientWidth/1.7;
+
 var height = document.getElementById("MySVG2").clientHeight/1.7;
+
 var categoricalScale = d3.scaleOrdinal(d3.schemeCategory10); //Colour palate
 var counter = 0;
 //Set scales for x and y
@@ -122,6 +124,10 @@ d3.csv(dataPath) //Read in Data
 		nestedData2.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
+		
+		nestedData4.sort(function(a,b){
+			return d3.descending(a.value.cap,b.value.cap)
+		})
 
 
 	//Adjust height,width of chart 1
@@ -228,118 +234,117 @@ d3.csv(dataPath) //Read in Data
 
 
 		// graph 3
-		var width2 = 800;
-		var height2 = 600;
-		var margin2 = 100;
+		//var margin2 = {top: 200, right: 30, bottom: 40, left: 50}
+		//var width2 = 500 - margin2.left - margin2.right;
+		//var height = 700 - margin2.top - margin2.bottom;
 
+	
+		var width2 = 600;
+		var height2 = 650;
+		var margin2 = 50;
+	
+	
+		//Find min/max values for avg age and caps
+		var capsExtent = d3.extent(nestedData4,function(d)
+		{
+			return parseFloat(d.value.cap);
+		})
+		
+		var ageExtent = d3.extent(nestedData4,function(d)
+		{
+			return parseFloat(d.value.age);	
+		})
+		
+		console.log(capsExtent);
+		
+		//calculate scale function and define axis
+		var xScale3 = d3.scaleLinear()
+			.range([margin2,width2-margin2])
+			.domain([capsExtent[0],capsExtent[1]+10])
+		
+		var yScale3 = d3.scaleLinear()
+			.range([height2-margin2,margin2])
+			.domain(ageExtent);
+		//Define axis using the scales
+		var xAxis = d3.axisBottom(xScale3);
+	  	var yAxis = d3.axisLeft(yScale3);
+		//Define the scatterplot with width and height
+		var scatterPlot = mySVG3.attr("width",width2)
+							.attr("height",height2)
+							
+		//ADD SCATTERPLOT BY DRAWING CIRCLES AT LOCATION OF CAP AND AGE
+		scatterPlot.selectAll("circle")
+			.data(nestedData4)
+			.enter()
+			.append("circle")
+				.attr("cx",function(d){
+					return xScale3(parseFloat(d.value.cap))
+				})
+				.attr("cy", function(d){
+					return yScale3(parseFloat(d.value.age))
+				})
+				.attr("r",8)
+				.on("mouseover", function(d,i){ //ADD HOVER EFFECT, when we hover over total caps are displayed and color changes
+					console.log(this);
+					d3.select(this)
+						.style("fill","#FFFF66")
+					mySVG3.append("text")
+						.attr("class","tooltip")
+						.text(d.key)
+						.attr("x",xScale3(parseFloat(d.value.cap))+10)
+						.attr("y",yScale3(parseFloat(d.value.age))+10);
+					mySVG.append("text")
+						.attr("class","tooltip")
+						.attr("x",150)
+						.attr("y",15+i*20)
+						.text("Total Caps: "+parseInt(d.value.cap*23)) //Each team has 23 players so this is easiest way
+				
+						
+				})
+				.on("mouseout",function(d){ //When we hover out of area it goes back to regular color and does not display country
+					d3.select(this)
+						.style("fill", "gold")
+
+					d3.selectAll(".tooltip")
+						.remove();
+				})
+				.attr("fill", "gold")
+				.attr("stroke","black")
+		//Add axis to SVG
+		
+		mySVG3.append("g")
+			.attr("class", "x axis") 
+			.attr("transform", "translate(0,"+height2+")")
+			.call(xAxis);
+	
+		//Add axis to SVG
+		mySVG3.append("g")
+			.append("g")
+			.attr("class", "y axis") 
+			.attr("transform", "translate(50,"+margin2+")")
+			.call(yAxis)
+	
+		d3.select(".x.axis")
+			.append("text")
+				.text("Average Caps by Country")
+				.style("fill","black")
+				.style("font-size", "15px")
+				.attr("x",(width2-margin2)/1.8)
+				.attr("y",margin2);
+	
+		d3.select(".y.axis")
+			.append("text")
+				.text("Average Age by Country")
+				.style("fill","black")
+				.attr("transform","rotate(-90,0,"+(margin2-15)+") translate(" + (-200)+",0)")
+				.style("font-size", "15px")
+	
 	
 				
 		
-		mySVG3.attr("width", width2 + margin2)
-			.attr("height", height2 + margin2);
+	
 
-		//we want the extent of all data, so we work with the un-nested data set
-		var countryExtent = d3.extent(data, function(d){
-										return d.team;
-		})
-
-		var xScale2 = d3.scaleTime()
-							.domain(countryExtent)
-							.range([0, width2]);
-
-		//extraction of just the counts from the nested data
-		var leafValues = new Array();
-		nestedData4.forEach(function(d){	//countries
-									leafValues.push(d.value);
-		})
-		console.log(leafValues);
-
-		//so for cap counts by country extent, we work with the leafValues array
-		var sumExtent = d3.extent(leafValues, function(d){
-												return parseInt(d);
-		})
-
-		var yScale2 = d3.scaleLinear()
-							.domain(sumExtent)
-							.range([height2, 0]);
-
-		var x_axis2 = d3.axisBottom(xScale2);
-		var y_axis2 = d3.axisLeft(yScale2);
-
-		mySVG3.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(" + margin2 +"," + height2 + ")")
-			.selectAll("text")
-				.style("text-anchor", "end")
-				.attr("dx", "-.8em")
-				.attr("dy", ".15em")
-				.attr("transform", "rotate(-65)");
-
-		mySVG3.append("g")
-			.attr("class", "y axis")
-			.attr("transform", "translate(" + margin2 + ",0)")
-			.call(y_axis2);
-
-		//define line generator
-		var line = d3.line()
-						.x(function(d){
-							//x values on the line are defined by the xScale function
-							return margin2 + xScale2(new team(d.key));
-						})
-						.y(function(d){
-							//y values on the line are defined by the yScale function
-							return yScale2(parseInt(d.cap));
-		});
-
-		var meanCap = nestedData4;
-		console.log(meanCap)
-		//var meanAge = nestedData4[1];
-
-		//call line generator with the data for meanCap
-		mySVG3.append("path")
-				.datum(meanCap.values)
-				.attr("class", "line meanCap")
-				.attr("d", line);
-
-		//call line generator with the data for meanAge
-		//mySVG3.append("path")
-		//		.datum(meanAge.values)
-		//		.attr("class", "line meanAge")
-		//		.attr("d", line);
-
-		//mySVG3.selectAll(".circleAge")
-		//		.data(meanAge.values)
-		//		//.enter()
-		//		.append("circle")
-		//			.attr("class", "circleAge")
-		//			.attr("cx", function(d){
-		//						return margin2 + xScale2(new team(d.key));
-		//			})
-		//			.attr("cy", function(d){
-		//						return yScale2(parseInt(d.value));
-		//			})
-		//			.attr("r", 2);
-
-		mySVG3.selectAll(".circleCap")
-				.data(meanCap.values)
-				.enter()
-				.append("circle")
-					.attr("class", "circleCap")
-					.attr("cx", function(d){
-								return margin2 + xScale2(new team(d.key));
-					})
-					.attr("cy", function(d){
-								return yScale2(parseInt(d.value));
-					})
-					.attr("r", 2);
-
-			//Add title to plot
-			mySVG3.append("text")
-				.attr("x", width1-300)
-				.attr("y",height1+60)
-				.style("font-size", "25px")
-				.text("Avg Caps and Age by Country");
-
+	
 	
 		//Add dropdown list to filter based on country and populate drop down list
 		var dropDownMenu = d3.select("#dropDownList");
