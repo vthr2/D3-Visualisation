@@ -9,6 +9,19 @@ div
 }
 
 
+
+#myDiv{
+
+	width: 800px;
+	height: 600px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 20px;
+	margin-left:20px;
+	
+}
+
+
 #myDiv2{
 
 	width: 800px;
@@ -28,8 +41,8 @@ svg{
 	height: 100%;
 }
 
-#rect1{
-	fill: orange;
+#myRect{
+	fill: pink;
 	stroke: black;
 	stroke-width: 2px;
 }

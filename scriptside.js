@@ -18,10 +18,9 @@ var dataPath = "data/WorlCupSquadsInfoVis.csv"; //Datapath for data which will b
 var mySVG = d3.select("#MySVG"); //First graph
 var mySVG2 = d3.select("#MySVG2"); //Second graph
 var margin = 80;					//Margin for second graph
-var width = document.getElementById("MySVG2").clientWidth; 
-var height = document.getElementById("MySVG2").clientHeight;
+var width = document.getElementById("MySVG2").clientWidth/2; 
+var height = document.getElementById("MySVG2").clientHeight/2;
 var categoricalScale = d3.scaleOrdinal(d3.schemeCategory10); //Colour palate
-
 
 //Set scales for x and y
 var xScale = d3.scaleBand()
@@ -94,40 +93,87 @@ d3.csv(dataPath) //Read in Data
 		})
 	
 
-		//ADD RECTANGLES WITH WIDTH BASED ON SUM OF CAPS
-		mySVG.selectAll("rect") 
-		.data(nestedData)
-		.enter()
-		.append("rect")
-			.attr("id","rect1")
-			.attr("width",function(d){
-				return d.value/4;	//DIVIDE BY 4 SO THE CHARTS DONT TAKE THE WHOLE SCREEN
-			})
-			.attr("height", 20)
-			.attr("x", 50)
-			.attr("y", function(d,i){
-				return i*20;
-			})
+		var margin1 = {top: 20, right: 30, bottom: 40, left: 90}
+		var width1 = 500 - margin1.left - margin1.right;
+		var height1 = 700 - margin1.top - margin1.bottom;
+
+	
+	
+		  // Add X axis
+		  var xScale1 = d3.scaleLinear()
+			.range([ 0, width1]);
+
+	    // Y axis
+	 	var yScale1 = d3.scaleBand()
+			.range([ 0, height1 ])
+			.padding(0.2);
+	
+		xScale1.domain([0,d3.max(nestedData,function(d)
+				{
+					console.log(d.value)
+					return d.value;
+				})])
+	
+		yScale1.domain(nestedData.map(function(d)
+				{
+					return d.key;
+				}))
+		// append the svg object to the body of the page
+
+	  mySVG
+		.attr("width", width1 + margin1.left + margin1.right)
+		.attr("height", height1 + margin1.top + margin1.bottom)
+	  mySVG.append("g")
+		.attr("transform",
+			  "translate(" + margin1.left + "," + margin1.top + ")");
+
+
+
+
+				
+  mySVG.append("g")
+    .attr("transform", "translate(0," + height1 + ")")
+    .call(d3.axisBottom(xScale1))
+    .selectAll("text")
+      .attr("transform", "translate(-10,0)rotate(-45)")
+      .style("text-anchor", "end");
+
+  //Bars
+  mySVG.selectAll("myRect")
+    .data(nestedData)
+    .enter()
+    .append("rect")
+    .attr("x", xScale1(0) )
+    .attr("y", function(d) { return yScale1(d.key); })
+    .attr("width", function(d) { return xScale1(d.value); })
+    .attr("height", yScale1.bandwidth() )
+    .attr("fill", "pink")
+	.attr('stroke', 'black')
+
 		//Add label of each country to bar chart
-		mySVG.selectAll("text")
+	mySVG.selectAll(".label")
 		.data(nestedData)
 		.enter()
 		.append("text")
-			.attr("x", 55)
+			.attr("x",0)
 			.attr("y", function(d,i){
 				return 15+i*20;
 			})
 			.text(function(d){
 				return d.key;
 		})
-		
-		//Draw up graph 2 first
-		updateTimeline(nestedData2);
-		
-		/*d3.select("body")
-			.append("div")
-			.attr("id","dropDownMenu")*/
-		//Add dropdown menu for countries to filter position bar chart by country
+	
+
+			//Add title to plot
+	mySVG2.append("text")
+		.attr("x", width1+200)             
+		.attr("y",height1+100 )
+		.style("font-size", "25px") 
+		.text("Total Caps by Country");
+			
+	
+
+  
 		var dropDownMenu = d3.select("#dropDownList");
 	
 		dropDownMenu
@@ -151,14 +197,10 @@ d3.csv(dataPath) //Read in Data
 			{
 				filterData(menuItem);
 			}
-			else
-			{
-				updateTimeline(nestedData2);
-			}
 			//updateTimeline(updatedData);
 		})
 	
-	
+		updateTimeline(nestedData2);
 		function filterData(country)
 		{
 			//filteredData = JSON.parse(JSON.stringify(nestedData3))
@@ -179,6 +221,11 @@ d3.csv(dataPath) //Read in Data
 		{
 			
 			//For sorting, make better later
+			
+			//var margin = {top: 20, right: 30, bottom: 40, left: 90}
+			//var width = 500 - margin.left - margin.right;
+			//var height = 700 - margin1.top - margin1.bottom;
+			
 			
 			updatedData.sort(function(a,b){
 				return d3.descending(a.value,b.value)
@@ -230,10 +277,10 @@ d3.csv(dataPath) //Read in Data
 				.enter()
 				.append("text")
 					.attr("x", function(d){
-							return xScale(d.key)+15;
+							return xScale(d.key);
 						})
-					.style("font-size", "50px")
-					.attr("y",height-margin-15)
+					.style("font-size", "28px")
+					.attr("y",height-margin-10)
 					.text(function(d){
 						return d.key;
 					})
