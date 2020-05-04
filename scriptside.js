@@ -11,8 +11,9 @@ var dataPath = "data/WorlCupSquadsInfoVis.csv"; //Datapath for data which will b
 
 var mySVG = d3.select("#MySVG"); //First graph
 var mySVG2 = d3.select("#MySVG2"); //Second graph
+var mySVG3 = d3.select("#MySVG3"); //Thrid Graph
 var margin = 80;					//Margin for second graph
-var width = document.getElementById("MySVG2").clientWidth/1.7; 
+var width = document.getElementById("MySVG2").clientWidth/1.7;
 var height = document.getElementById("MySVG2").clientHeight/1.7;
 var categoricalScale = d3.scaleOrdinal(d3.schemeCategory10); //Colour palate
 
@@ -24,13 +25,12 @@ var xScale = d3.scaleBand()
 var yScale = d3.scaleLinear()
 			 .range([height-margin,0]);
 
-var counter = 0;
 
 d3.csv(dataPath) //Read in Data
     .then(function(data){
         //console.table(data);
         //console.log(data);
-        
+
 		//Dataset for graph 1
         var nestedData = d3.nest()	//Create seperate datset for total caps of each coutnry
             .key(function(d){
@@ -44,7 +44,7 @@ d3.csv(dataPath) //Read in Data
             })
             .entries(data);
         console.log(nestedData);
-		
+
 
 		//Dataset for graph2
 	  var nestedData2 = d3.nest()	//Create seperate datset for total caps of each positoin
@@ -59,7 +59,7 @@ d3.csv(dataPath) //Read in Data
             })
             .entries(data);
         console.log(nestedData2);
-		
+
 		//Dataset for filtering graph 2
 		  var nestedData3 = d3.nest()	//Create seperate datset for total caps of each positoin
             .key(function(d){
@@ -75,52 +75,48 @@ d3.csv(dataPath) //Read in Data
                 })
             })
             .entries(data);
-	
-		 var nestedAge = d3.nest()	//Create seperate datset for total caps of each positoin
-            .key(function(d){
-                return d.position;
-            })
-            .rollup(function(leaves)
+        console.log(nestedData3);
+
+		//Dataset for graph 3
+		var nestedData4 = d3.nest() //Create seperate datset for mean caps and mean age for each country
+						.key(function(d){
+								return d.team;
+						})
+						.rollup(function(leaves)
             {
-                return d3.mean(leaves,function(d){ 	//Get mean caps of each country together
+                return d3.mean(leaves,function(d){ 	//Get mean caps for each country together
+                return parseInt(d.Caps);
+                })
+            })
+						.rollup(function(leaves)
+            {
+                return d3.mean(leaves,function(d){ 	//Get mean age for each country together
                 return parseInt(d.age);
                 })
             })
             .entries(data);
-        console.log(nestedAge);
-	
-		  var nestedAge2 = d3.nest()	//Create seperate datset for total caps of each positoin
-            .key(function(d){
-                return d.team;
-            })
-		  	.key(function(d){
-				return d.position;
-			})
-            .rollup(function(leaves)
-            {
-                return d3.mean(leaves,function(d){ 	//Get mean caps of each country together
-                return parseInt(d.age);
-                })
-            })
-            .entries(data);
-	
-	
+        console.log(nestedData4);
+
+
 		//Sort datasets so it is displayed sorted by default
 		nestedData.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
-	
+
 		nestedData2.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
-	
+
+		nestedData4.sort(function(a,b){
+			return d3.descending(a.value,b.value)
+		})
+
 
 		var margin1 = {top: 20, right: 30, bottom: 40, left: 90}
 		var width1 = 500 - margin1.left - margin1.right;
 		var height1 = 700 - margin1.top - margin1.bottom;
 
-	
-	
+
 		  // Add X axis
 		  var xScale1 = d3.scaleLinear()
 			.range([ 0, width1]);
@@ -129,13 +125,13 @@ d3.csv(dataPath) //Read in Data
 	 	var yScale1 = d3.scaleBand()
 			.range([ 0, height1 ])
 			.padding(0.2);
-	
+
 		xScale1.domain([0,d3.max(nestedData,function(d)
 				{
 					console.log(d.value)
 					return d.value;
 				})])
-	
+
 		yScale1.domain(nestedData.map(function(d)
 				{
 					return d.key;
@@ -152,7 +148,7 @@ d3.csv(dataPath) //Read in Data
 
 
 
-				
+
   mySVG.append("g")
     .attr("transform", "translate(0," + height1 + ")")
     .call(d3.axisBottom(xScale1))
@@ -186,18 +182,127 @@ d3.csv(dataPath) //Read in Data
 		})
 			//Add title to plot
 	mySVG.append("text")
-		.attr("x", width1-300)             
+		.attr("x", width1-300)
 		.attr("y",height1+60)
-		.style("font-size", "25px") 
+		.style("font-size", "25px")
 		.text("Total Caps by Country");
-			
-	
+
+
+		// graph 3
+		var width2 = 800;
+		var height2 = 600;
+		var margin2 = 100;
+
+		mySVG3.select("body")
+						.append("div")
+							.attr("id", "linegraph")
+							.append("svg")
+							.attr("width", width2 + margin2)
+							.attr("height", height2 + margin2);
+
+		//we want the extent of all data, so we work with the un-nested data set
+		var countryExtent = d3.extent(data, function(d){
+										return d.team;
+		})
+
+		var xScale2 = d3.scaleTime()
+							.domain(countryExtent)
+							.range([0, width2]);
+
+		//extraction of just the counts from the nested data
+		var leafValues = new Array();
+		nestedData4.forEach(function(d){	//first level - countries
+									(d.values).forEach(function(e){	//second level year/month
+												leafValues.push(e.value);	//get the asylum seeker counts by month
+																			//store these in the leafValues array
+									})
+		})
+
+		//so for asylum seeker counts by month extent, we work with the leafValues array
+		var sumExtent = d3.extent(leafValues, function(d){
+												return parseInt(d);
+		})
+
+		var yScale2 = d3.scaleLinear()
+							.domain(sumExtent)
+							.range([height2, 0
+
+		var x_axis2 = d3.axisBottom(xScale2);
+		var y_axis2 = d3.axisLeft(yScale2);
+
+		mySVG3.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(" + margin2 +"," + height2 + ")")
+			.selectAll("text")
+				.style("text-anchor", "end")
+				.attr("dx", "-.8em")
+				.attr("dy", ".15em")
+				.attr("transform", "rotate(-65)");
+
+		mySVG3.append("g")
+			.attr("class", "y axis")
+			.attr("transform", "translate(" + margin2 + ",0)")
+			.call(y_axis2);
+
+		//define line generator
+		var line = d3.line()
+						.x(function(d){
+							//x values on the line are defined by the xScale function
+							return margin2 + xScale2(new team(d.key));
+						})
+						.y(function(d){
+							//y values on the line are defined by the yScale function
+							return yScale2(parseInt(d.value));
+		});
+
+		var meanCap = nestedData4[0];
+		var meanAge = nestedData4[1];
+
+		//call line generator with the data for meanCap
+		mySVG3.append("path")
+				.datum(meanCap.values)
+				.attr("class", "line meanCap")
+				.attr("d", line);
+
+		//call line generator with the data for meanAge
+		mySVG3.append("path")
+				.datum(meanAge.values)
+				.attr("class", "line meanAge")
+				.attr("d", line);
+
+		mySVG3.selectAll(".circleAge")
+				.data(meanAge.values)
+				.enter()
+				.append("circle")
+					.attr("class", "circleAge")
+					.attr("cx", function(d){
+								return margin2 + xScale2(new team(d.key));
+					})
+					.attr("cy", function(d){
+								return yScale2(parseInt(d.value));
+					})
+					.attr("r", 2);
+
+		mySVG3.selectAll(".circleCap")
+				.data(meanCap.values)
+				.enter()
+				.append("circle")
+					.attr("class", "circleCap")
+					.attr("cx", function(d){
+								return margin2 + xScale2(new team(d.key));
+					})
+					.attr("cy", function(d){
+								return yScale2(parseInt(d.value));
+					})
+					.attr("r", 2);
+
+
 		var dropDownMenu = d3.select("#dropDownList");
-	
+
 		dropDownMenu
 			.selectAll("option")
 			.data(nestedData)
-			.enter()	
+			.enter()
 			.append("option")
 				.attr("value",function(d){
 					return d.key;
@@ -216,65 +321,35 @@ d3.csv(dataPath) //Read in Data
 				filterData(menuItem);
 			}
 		})
-	
-		var myButton = d3.select("#ageButton")
-		
-		myButton	
-			.on("click",function(){
-			counter++;
-			if(counter%2 != 0)
-			{
-				updateTimeline(nestedAge);
-			}
-			else
-			{
-				updateTimeline(nestedData2);
-			}
-		})
-		
+
 		updateTimeline(nestedData2);
 		function filterData(country)
 		{
 			//filteredData = JSON.parse(JSON.stringify(nestedData3))
 			//console.log(filteredData)
-			if(counter%2 == 0)
+			nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
 			{
-				nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
-				{	
-					if(d.key == country)
-					{
-						updateTimeline(d.values);
-						return;
-						//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
-					}	
-				})
-			}
-			else
-			{
-				nestedAge2.some(function(d) //Some can stop the loop when condition is fulfilled
-				{	
-					if(d.key == country)
-					{
-						updateTimeline(d.values);
-						return;
-						//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
-					}	
-				})
-			}
-			
+				if(d.key == country)
+				{
+					updateTimeline(d.values);
+					return;
+					//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
+				}
+			})
+
 		}
-		
+
 		function updateTimeline(updatedData)
 		{
-			
+
 			//For sorting, make better later
 			updatedData.sort(function(a,b){
 				return d3.descending(a.value,b.value)
 			})
 
-			
+
 			console.log(updatedData);
-			
+
 				xScale.domain(updatedData.map(function(d)
 				{
 					console.log(d.key)
@@ -287,7 +362,7 @@ d3.csv(dataPath) //Read in Data
 				})])
 			mySVG2.selectAll(".bar")
 				.remove();
-			
+
 			mySVG2.selectAll(".bar")
 			.data(updatedData)
 			.enter()
@@ -330,28 +405,17 @@ d3.csv(dataPath) //Read in Data
 					.attr("transform", "translate("+margin+ ",0)")
 					.style("font-size","25px")
 					.call(d3.axisLeft(yScale));
-		
-			//Add title to plot
-			if(counter%2==0)
-			{
-			mySVG2.append("text")
-				.attr("x", 50)             
-				.attr("y", height-50)
-				.style("font-size", "25px") 
-				.text("Average Caps by Position");
-			
-			}
-			else
-			{
-				mySVG2.append("text")
-					.attr("x", 50)             
-					.attr("y", height-50)
-					.style("font-size", "25px") 
-					.text("Average Caps by Age");
-			}
-		}
-			
-	
-			
-})
 
+			//Add title to plot
+			mySVG2.append("text")
+
+				.attr("x", 50)
+				.attr("y", height-50)
+				.style("font-size", "25px")
+				.text("Average Caps by Position");
+
+			}
+
+
+
+})
