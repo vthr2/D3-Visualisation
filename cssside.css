@@ -16,7 +16,7 @@ div
 	margin-bottom: 20px;
 	margin-right: 20px;
 	margin-left:20px;
-	
+
 }
 
 
@@ -28,7 +28,7 @@ div
 	margin-bottom: 20px;
 	margin-right: 20px;
 	margin-left:20px;
-	
+
 }
 
 
@@ -78,4 +78,22 @@ h4 {
 h3, h4, h5, h6 {
 	color: #365F91;
 	letter-spacing: .5pt;
+}
+
+.line{
+	fill: none;
+}
+.meanAge{
+	stroke: blue;
+}
+.meanCap{
+	stroke: red;
+}
+.circleAge
+{
+	fill: blue;
+}
+.circleCap
+{
+	fill: red;
 }

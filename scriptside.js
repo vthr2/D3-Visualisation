@@ -10,10 +10,12 @@ var dataPath = "data/WorlCupSquadsInfoVis.csv"; //Datapath for data which will b
 
 var mySVG = d3.select("#MySVG"); //First graph
 var mySVG2 = d3.select("#MySVG2"); //Second graph
+var mySVG3 = d3.select("#MySVG3"); //Thrid Graph
 var margin = 80;					//Margin for second graph
-var width = document.getElementById("MySVG2").clientWidth/1.7; 
+var width = document.getElementById("MySVG2").clientWidth/1.7;
 var height = document.getElementById("MySVG2").clientHeight/1.7;
 var categoricalScale = d3.scaleOrdinal(d3.schemeCategory10); //Colour palate
+var counter = 0;
 //Set scales for x and y
 var xScale = d3.scaleBand()
 	.range([margin,width])
@@ -22,13 +24,10 @@ var xScale = d3.scaleBand()
 var yScale = d3.scaleLinear()
 	.range([height-margin,0]);
 
-var counter = 0;
 
 d3.csv(dataPath) //Read in Data
  	.then(function(data){
-
-        
-		//Dataset for graph 1
+	//Dataset for graph 1
 	var nestedData = d3.nest()	//Create seperate datset for total caps of each coutnry
   		.key(function(d){
         	return d.team;
@@ -39,7 +38,6 @@ d3.csv(dataPath) //Read in Data
             })
         })
         .entries(data);
-		
 
 	 //Dataset for graph2
 	  var nestedData2 = d3.nest()	//Create seperate datset for average age of each country
@@ -53,8 +51,7 @@ d3.csv(dataPath) //Read in Data
                 })
             })
             .entries(data);
-        console.log(nestedData2);
-		
+
 		//Dataset for filtering graph 2
 		  var nestedData3 = d3.nest()	//Filter countries so each country has the average cap of each position, used for filtering for each country from dropdown list
             .key(function(d){
@@ -100,43 +97,60 @@ d3.csv(dataPath) //Read in Data
             })
             .entries(data);
 	
-	
+					
+			//Dataset for graph 3
+			var nestedData4 = d3.nest() //Create seperate datset for mean caps and mean age for each country
+				.key(function(d){
+					return d.team;
+				})
+				.rollup(function(leaves) {
+					return {
+						cap: d3.mean(leaves, function(e) { return e.Caps; }),
+						age: d3.mean(leaves, function(e) { return e.age; })
+					};
+  				})
+				.entries(data);
+			console.log(nestedData4);
+
+
+
 		//Sort datasets so it is displayed sorted by default
 		nestedData.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
-	
+
 		nestedData2.sort(function(a,b){
 			return d3.descending(a.value,b.value)
 		})
-	
-		
-		//Adjust height,width of chart 1
+
+
+	//Adjust height,width of chart 1
 		var margin1 = {top: 20, right: 30, bottom: 40, left: 90}
 		var width1 = 500 - margin1.left - margin1.right;
 		var height1 = 700 - margin1.top - margin1.bottom;
 
-	  	// Add X axis
-		var xScale1 = d3.scaleLinear()
+
+		 // Add X axis
+		 var xScale1 = d3.scaleLinear()
 			.range([ 0, width1]);
 
 	    // Y axis
 	 	var yScale1 = d3.scaleBand()
 			.range([ 0, height1 ])
 			.padding(0.2);
+
 	
 		//Adjust axis
 		xScale1.domain([0,d3.max(nestedData,function(d)
 				{
-					console.log(d.value)
 					return d.value;
 				})])
-	
+
 		yScale1.domain(nestedData.map(function(d)
 				{
 					return d.key;
 				}))
-		// append the svg object to the body of the page
+
 	  //ADJUST Height Width
 	  mySVG
 		.attr("width", width1 + margin1.left + margin1.right)
@@ -152,34 +166,47 @@ d3.csv(dataPath) //Read in Data
 		  .attr("transform", "translate(-10,0)rotate(-45)")
 		  .style("text-anchor", "end");
 
-	  //Bars
-	  mySVG.selectAll("myRect")
-		.data(nestedData)
-		.enter()
-		.append("rect")
-		.attr("x", xScale1(0) )
-		.attr("y", function(d) { return yScale1(d.key); })
-		.attr("width", function(d) { return xScale1(d.value); })
-		.attr("height", yScale1.bandwidth() )
-		.attr("fill", "pink")
-		.attr('stroke', 'black')
-		.on("mouseenter", function(d,i){ //ADD HOVER EFFECT, when we hover over total caps are displayed and color changes
-			d3.select(this)
-				.style("fill","#E75480")
-			mySVG.append("text")
-				.attr("class","tooltip")
-				.attr("x",150)
-				.attr("y",15+i*20)
-				.text("Total Caps: "+d.value)
-			})
-		.on("mouseout",function(d){ //When we hover out of area it goes back to regular color and does not display total caps
-			d3.select(this)
-				.style("fill", "pink")
+ 	
+		 //Make bar chart
+		mySVG.selectAll("myRect")
+			.data(nestedData)
+			.enter()
+			.append("rect")
+			.attr("x", xScale1(0) )
+			.attr("y", function(d) { return yScale1(d.key); })
+			.attr("width", function(d) { return xScale1(d.value); })
+			.attr("height", yScale1.bandwidth() )
+			.attr("fill", "pink")
+			.attr('stroke', 'black')
 
-			d3.selectAll(".tooltip")
-				.remove();
-			})
-	    //Add label of each country to bar chart
+		//Add label of each country to bar chart
+		mySVG.selectAll(".label")
+			.data(nestedData)
+			.enter()
+			.append("rect")
+			.attr("x", xScale1(0) )
+			.attr("y", function(d) { return yScale1(d.key); })
+			.attr("width", function(d) { return xScale1(d.value); })
+			.attr("height", yScale1.bandwidth() )
+			.attr("fill", "pink")
+			.attr('stroke', 'black')
+			.on("mouseenter", function(d,i){ //ADD HOVER EFFECT, when we hover over total caps are displayed and color changes
+				d3.select(this)
+					.style("fill","#E75480")
+				mySVG.append("text")
+					.attr("class","tooltip")
+					.attr("x",150)
+					.attr("y",15+i*20)
+					.text("Total Caps: "+d.value)
+				})
+			.on("mouseout",function(d){ //When we hover out of area it goes back to regular color and does not display total caps
+				d3.select(this)
+					.style("fill", "pink")
+
+				d3.selectAll(".tooltip")
+					.remove();
+				})
+		//Add label of each country to bar chart
 		mySVG.selectAll(".label")
 			.data(nestedData)
 			.enter()
@@ -190,21 +217,137 @@ d3.csv(dataPath) //Read in Data
 				})
 				.text(function(d){
 					return d.key;
-			})
-	    //Add title to plot
+				})
+
+		//Add title to plot
 		mySVG.append("text")
-			.attr("x", width1-300)             
+			.attr("x", width1-300)
 			.attr("y",height1+60)
-			.style("font-size", "25px") 
+			.style("font-size", "25px")
 			.text("Total Caps by Country");
 
+
+		// graph 3
+		var width2 = 800;
+		var height2 = 600;
+		var margin2 = 100;
+
+	
+				
+		
+		mySVG3.attr("width", width2 + margin2)
+			.attr("height", height2 + margin2);
+
+		//we want the extent of all data, so we work with the un-nested data set
+		var countryExtent = d3.extent(data, function(d){
+										return d.team;
+		})
+
+		var xScale2 = d3.scaleTime()
+							.domain(countryExtent)
+							.range([0, width2]);
+
+		//extraction of just the counts from the nested data
+		var leafValues = new Array();
+		nestedData4.forEach(function(d){	//countries
+									leafValues.push(d.value);
+		})
+		console.log(leafValues);
+
+		//so for cap counts by country extent, we work with the leafValues array
+		var sumExtent = d3.extent(leafValues, function(d){
+												return parseInt(d);
+		})
+
+		var yScale2 = d3.scaleLinear()
+							.domain(sumExtent)
+							.range([height2, 0]);
+
+		var x_axis2 = d3.axisBottom(xScale2);
+		var y_axis2 = d3.axisLeft(yScale2);
+
+		mySVG3.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(" + margin2 +"," + height2 + ")")
+			.selectAll("text")
+				.style("text-anchor", "end")
+				.attr("dx", "-.8em")
+				.attr("dy", ".15em")
+				.attr("transform", "rotate(-65)");
+
+		mySVG3.append("g")
+			.attr("class", "y axis")
+			.attr("transform", "translate(" + margin2 + ",0)")
+			.call(y_axis2);
+
+		//define line generator
+		var line = d3.line()
+						.x(function(d){
+							//x values on the line are defined by the xScale function
+							return margin2 + xScale2(new team(d.key));
+						})
+						.y(function(d){
+							//y values on the line are defined by the yScale function
+							return yScale2(parseInt(d.cap));
+		});
+
+		var meanCap = nestedData4;
+		console.log(meanCap)
+		//var meanAge = nestedData4[1];
+
+		//call line generator with the data for meanCap
+		mySVG3.append("path")
+				.datum(meanCap.values)
+				.attr("class", "line meanCap")
+				.attr("d", line);
+
+		//call line generator with the data for meanAge
+		//mySVG3.append("path")
+		//		.datum(meanAge.values)
+		//		.attr("class", "line meanAge")
+		//		.attr("d", line);
+
+		//mySVG3.selectAll(".circleAge")
+		//		.data(meanAge.values)
+		//		//.enter()
+		//		.append("circle")
+		//			.attr("class", "circleAge")
+		//			.attr("cx", function(d){
+		//						return margin2 + xScale2(new team(d.key));
+		//			})
+		//			.attr("cy", function(d){
+		//						return yScale2(parseInt(d.value));
+		//			})
+		//			.attr("r", 2);
+
+		mySVG3.selectAll(".circleCap")
+				.data(meanCap.values)
+				.enter()
+				.append("circle")
+					.attr("class", "circleCap")
+					.attr("cx", function(d){
+								return margin2 + xScale2(new team(d.key));
+					})
+					.attr("cy", function(d){
+								return yScale2(parseInt(d.value));
+					})
+					.attr("r", 2);
+
+			//Add title to plot
+			mySVG3.append("text")
+				.attr("x", width1-300)
+				.attr("y",height1+60)
+				.style("font-size", "25px")
+				.text("Avg Caps and Age by Country");
+
+	
 		//Add dropdown list to filter based on country and populate drop down list
 		var dropDownMenu = d3.select("#dropDownList");
-		
+	
 		dropDownMenu
 			.selectAll("option")
 			.data(nestedData)
-			.enter()	
+			.enter()
 			.append("option")
 				.attr("value",function(d){
 					return d.key;
@@ -212,12 +355,12 @@ d3.csv(dataPath) //Read in Data
 				.text(function(d){
 					return d.key;
 				})
+	
 		//When we select a country we update the bar chart
 		dropDownMenu
 			.on("change",function(){
 				var menuItem = d3.select(this)
 					.property("value");
-			console.log(menuItem);
 			if(menuItem != "All")
 			{
 				filterData(menuItem);
@@ -245,18 +388,20 @@ d3.csv(dataPath) //Read in Data
 		
 		updateTimeline(nestedData2); //Default graph is avg caps for all countries
 	
-		function filterData(country) //Function to filter the data
+
+		updateTimeline(nestedData2);
+		function filterData(country)
 		{
 			if(counter%2 == 0)
 			{
 				nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
-				{	
+				{
 					if(d.key == country)
 					{
 						updateTimeline(d.values);
 						return;
 						//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
-					}	
+					}
 				})
 			}
 			else
@@ -271,17 +416,19 @@ d3.csv(dataPath) //Read in Data
 					}	
 				})
 			}
-			
+
 		}
 		
 		//THIS function draws the bar chart with the inserted data, data changes based on values selected from drop down list or if the button is pressed(avg age or avg cap)
+
 		function updateTimeline(updatedData)
 		{
-			
+
 			//For sorting, make better later
 			updatedData.sort(function(a,b){
 				return d3.descending(a.value,b.value)
 			})
+
 
 					
 			//Set scales
@@ -310,7 +457,6 @@ d3.csv(dataPath) //Read in Data
 					})
 					.attr("width",xScale.bandwidth())
 					.attr("y",function(d){
-						console.log(d.value);
 						return yScale(d.value);
 					})
 					.attr("height", function(d){
@@ -341,16 +487,17 @@ d3.csv(dataPath) //Read in Data
 					.attr("transform", "translate("+margin+ ",0)")
 					.style("font-size","25px")
 					.call(d3.axisLeft(yScale));
+
 		
 			//Add/Update title to plot and 
 			if(counter%2==0)
 			{
 			mySVG2.append("text")
-				.attr("x", 50)             
+
+				.attr("x", 50)
 				.attr("y", height-50)
-				.style("font-size", "25px") 
-				.text("Average Caps by Position");
-			
+				.style("font-size", "25px")
+				.text("Average Caps by Position");			
 			}
 			else
 			{
@@ -361,8 +508,7 @@ d3.csv(dataPath) //Read in Data
 					.text("Average Age by Position");
 			}
 		}
-			
-	
-			
-})
 
+
+
+})
