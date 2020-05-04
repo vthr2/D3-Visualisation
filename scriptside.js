@@ -88,12 +88,12 @@ d3.csv(dataPath) //Read in Data
                 return parseInt(d.Caps);
                 })
             })
-						.rollup(function(leaves)
-            {
-                return d3.mean(leaves,function(d){ 	//Get mean age for each country together
-                return parseInt(d.age);
-                })
-            })
+						//.rollup(function(leaves)
+            //{
+            //    return d3.mean(leaves,function(d){ 	//Get mean age for each country together
+            //    return parseInt(d.age);
+            //    })
+            //})
             .entries(data);
         console.log(nestedData4);
 
@@ -211,21 +211,18 @@ d3.csv(dataPath) //Read in Data
 
 		//extraction of just the counts from the nested data
 		var leafValues = new Array();
-		nestedData4.forEach(function(d){	//first level - countries
-									(d.values).forEach(function(e){	//second level year/month
-												leafValues.push(e.value);	//get the asylum seeker counts by month
-																			//store these in the leafValues array
-									})
+		nestedData4.forEach(function(d){	//countries
+									leafValues.push(d.value);
 		})
 
-		//so for asylum seeker counts by month extent, we work with the leafValues array
+		//so for cap counts by country extent, we work with the leafValues array
 		var sumExtent = d3.extent(leafValues, function(d){
 												return parseInt(d);
 		})
 
 		var yScale2 = d3.scaleLinear()
 							.domain(sumExtent)
-							.range([height2, 0
+							.range([height2, 0]);
 
 		var x_axis2 = d3.axisBottom(xScale2);
 		var y_axis2 = d3.axisLeft(yScale2);
@@ -255,8 +252,8 @@ d3.csv(dataPath) //Read in Data
 							return yScale2(parseInt(d.value));
 		});
 
-		var meanCap = nestedData4[0];
-		var meanAge = nestedData4[1];
+		var meanCap = nestedData4;
+		//var meanAge = nestedData4[1];
 
 		//call line generator with the data for meanCap
 		mySVG3.append("path")
@@ -265,23 +262,23 @@ d3.csv(dataPath) //Read in Data
 				.attr("d", line);
 
 		//call line generator with the data for meanAge
-		mySVG3.append("path")
-				.datum(meanAge.values)
-				.attr("class", "line meanAge")
-				.attr("d", line);
+		//mySVG3.append("path")
+		//		.datum(meanAge.values)
+		//		.attr("class", "line meanAge")
+		//		.attr("d", line);
 
-		mySVG3.selectAll(".circleAge")
-				.data(meanAge.values)
-				.enter()
-				.append("circle")
-					.attr("class", "circleAge")
-					.attr("cx", function(d){
-								return margin2 + xScale2(new team(d.key));
-					})
-					.attr("cy", function(d){
-								return yScale2(parseInt(d.value));
-					})
-					.attr("r", 2);
+		//mySVG3.selectAll(".circleAge")
+		//		.data(meanAge.values)
+		//		//.enter()
+		//		.append("circle")
+		//			.attr("class", "circleAge")
+		//			.attr("cx", function(d){
+		//						return margin2 + xScale2(new team(d.key));
+		//			})
+		//			.attr("cy", function(d){
+		//						return yScale2(parseInt(d.value));
+		//			})
+		//			.attr("r", 2);
 
 		mySVG3.selectAll(".circleCap")
 				.data(meanCap.values)
@@ -295,6 +292,13 @@ d3.csv(dataPath) //Read in Data
 								return yScale2(parseInt(d.value));
 					})
 					.attr("r", 2);
+
+			//Add title to plot
+			mySVG3.append("text")
+				.attr("x", width1-300)
+				.attr("y",height1+60)
+				.style("font-size", "25px")
+				.text("Avg Caps and Age by Country");
 
 
 		var dropDownMenu = d3.select("#dropDownList");
