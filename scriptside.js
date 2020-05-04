@@ -1,12 +1,6 @@
 
 //What has been done are two graphs just to get started. It is quite ugly for now and many things have to be adjusted, no interactivity has been added
 //THINGS TO FIX:
-// 1. Make sizes of both graphs similar, second graph is way too large, also adjust positions of graphs
-// 2. Add X-axis to first graph and a title
-// 3. Pick different colors, so the position and first graph dont both have orange
-// 4. Make code for first graph better by adding scales like was done in second graph
-// 5. Make color the same for each position when filtering
-// 6. Add All option for filter which ouputs all countries data
 
 //THINGS THAT COULD BE ADDED TO MAKE GRAPHS BETTER, IDEAS
 //1. Make a sort button or something to sort ascending or descending
@@ -162,12 +156,10 @@ d3.csv(dataPath) //Read in Data
 			.text(function(d){
 				return d.key;
 		})
-	
-
 			//Add title to plot
-	mySVG2.append("text")
-		.attr("x", width1+200)             
-		.attr("y",height1+100 )
+	mySVG.append("text")
+		.attr("x", width1-300)             
+		.attr("y",height1+60)
 		.style("font-size", "25px") 
 		.text("Total Caps by Country");
 			
@@ -197,7 +189,6 @@ d3.csv(dataPath) //Read in Data
 			{
 				filterData(menuItem);
 			}
-			//updateTimeline(updatedData);
 		})
 	
 		updateTimeline(nestedData2);
@@ -221,9 +212,6 @@ d3.csv(dataPath) //Read in Data
 		{
 			
 			//For sorting, make better later
-			
-			
-			
 			updatedData.sort(function(a,b){
 				return d3.descending(a.value,b.value)
 			})
@@ -289,6 +277,7 @@ d3.csv(dataPath) //Read in Data
 		
 			//Add title to plot
 			mySVG2.append("text")
+			
 				.attr("x", 50)             
 				.attr("y", height-50)
 				.style("font-size", "25px") 
@@ -297,10 +286,6 @@ d3.csv(dataPath) //Read in Data
 			}
 			
 	
-	
-
 			
-
-
 })
 
