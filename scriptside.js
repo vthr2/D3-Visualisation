@@ -23,7 +23,8 @@ var xScale = d3.scaleBand()
 
 var yScale = d3.scaleLinear()
 			 .range([height-margin,0]);
-	
+
+var counter = 0;
 
 d3.csv(dataPath) //Read in Data
     .then(function(data){
@@ -74,7 +75,34 @@ d3.csv(dataPath) //Read in Data
                 })
             })
             .entries(data);
-        console.log(nestedData3);
+	
+		 var nestedAge = d3.nest()	//Create seperate datset for total caps of each positoin
+            .key(function(d){
+                return d.position;
+            })
+            .rollup(function(leaves)
+            {
+                return d3.mean(leaves,function(d){ 	//Get mean caps of each country together
+                return parseInt(d.age);
+                })
+            })
+            .entries(data);
+        console.log(nestedAge);
+	
+		  var nestedAge2 = d3.nest()	//Create seperate datset for total caps of each positoin
+            .key(function(d){
+                return d.team;
+            })
+		  	.key(function(d){
+				return d.position;
+			})
+            .rollup(function(leaves)
+            {
+                return d3.mean(leaves,function(d){ 	//Get mean caps of each country together
+                return parseInt(d.age);
+                })
+            })
+            .entries(data);
 	
 	
 		//Sort datasets so it is displayed sorted by default
@@ -189,20 +217,50 @@ d3.csv(dataPath) //Read in Data
 			}
 		})
 	
+		var myButton = d3.select("#ageButton")
+		
+		myButton	
+			.on("click",function(){
+			counter++;
+			if(counter%2 != 0)
+			{
+				updateTimeline(nestedAge);
+			}
+			else
+			{
+				updateTimeline(nestedData2);
+			}
+		})
+		
 		updateTimeline(nestedData2);
 		function filterData(country)
 		{
 			//filteredData = JSON.parse(JSON.stringify(nestedData3))
 			//console.log(filteredData)
-			nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
-			{	
-				if(d.key == country)
-				{
-					updateTimeline(d.values);
-					return;
-					//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
-				}	
-			})
+			if(counter%2 == 0)
+			{
+				nestedData3.some(function(d) //Some can stop the loop when condition is fulfilled
+				{	
+					if(d.key == country)
+					{
+						updateTimeline(d.values);
+						return;
+						//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
+					}	
+				})
+			}
+			else
+			{
+				nestedAge2.some(function(d) //Some can stop the loop when condition is fulfilled
+				{	
+					if(d.key == country)
+					{
+						updateTimeline(d.values);
+						return;
+						//Actually stops the loop when condition is fulfilled, with forEach the loops keeps going.
+					}	
+				})
+			}
 			
 		}
 		
@@ -274,14 +332,24 @@ d3.csv(dataPath) //Read in Data
 					.call(d3.axisLeft(yScale));
 		
 			//Add title to plot
+			if(counter%2==0)
+			{
 			mySVG2.append("text")
-			
 				.attr("x", 50)             
 				.attr("y", height-50)
 				.style("font-size", "25px") 
 				.text("Average Caps by Position");
 			
 			}
+			else
+			{
+				mySVG2.append("text")
+					.attr("x", 50)             
+					.attr("y", height-50)
+					.style("font-size", "25px") 
+					.text("Average Caps by Age");
+			}
+		}
 			
 	
 			
