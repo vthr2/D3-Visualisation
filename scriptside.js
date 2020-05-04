@@ -164,8 +164,6 @@ d3.csv(dataPath) //Read in Data
 		.text("Total Caps by Country");
 			
 	
-
-  
 		var dropDownMenu = d3.select("#dropDownList");
 	
 		dropDownMenu
