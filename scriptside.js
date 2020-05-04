@@ -18,8 +18,8 @@ var dataPath = "data/WorlCupSquadsInfoVis.csv"; //Datapath for data which will b
 var mySVG = d3.select("#MySVG"); //First graph
 var mySVG2 = d3.select("#MySVG2"); //Second graph
 var margin = 80;					//Margin for second graph
-var width = document.getElementById("MySVG2").clientWidth/2; 
-var height = document.getElementById("MySVG2").clientHeight/2;
+var width = document.getElementById("MySVG2").clientWidth/1.7; 
+var height = document.getElementById("MySVG2").clientHeight/1.7;
 var categoricalScale = d3.scaleOrdinal(d3.schemeCategory10); //Colour palate
 
 //Set scales for x and y
@@ -187,7 +187,7 @@ d3.csv(dataPath) //Read in Data
 				.text(function(d){
 					return d.key;
 				})
-			
+
 		dropDownMenu
 			.on("change",function(){
 				var menuItem = d3.select(this)
@@ -222,9 +222,6 @@ d3.csv(dataPath) //Read in Data
 			
 			//For sorting, make better later
 			
-			//var margin = {top: 20, right: 30, bottom: 40, left: 90}
-			//var width = 500 - margin.left - margin.right;
-			//var height = 700 - margin1.top - margin1.bottom;
 			
 			
 			updatedData.sort(function(a,b){
@@ -292,9 +289,9 @@ d3.csv(dataPath) //Read in Data
 		
 			//Add title to plot
 			mySVG2.append("text")
-				.attr("x", 135)             
-				.attr("y", height-20)
-				.style("font-size", "40px") 
+				.attr("x", 50)             
+				.attr("y", height-50)
+				.style("font-size", "25px") 
 				.text("Average Caps by Position");
 			
 			}
