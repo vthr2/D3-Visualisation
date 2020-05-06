@@ -7,17 +7,51 @@ div
 	width: 600px;
 	height: 1200px;
 }
+
 .column {
   float: left;
   width: 33.33%;
 }
 
-/* Clear floats after the columns */
+#bar1{
+	margin-left: 60px;
+	font-size: 18px;
+}
+
+#bar2{
+	margin-left:150px;
+	font-size: 18px;
+}
+
+#bar3{
+	margin-left: 150px;
+	font-size: 18px;
+}
+#banner{
+	height: 5%;
+	width: 100%;
+	text-align: center;
+	font-size: 36px;
+}
+
+#filtertext{
+	margin-left:80px;
+}
+#title{
+	font-size: 36px;
+	width: 50%;
+
+}
+
+
+
 .row:after {
   content: "";
   display: table;
-  clear: both;
+  clear: both;	
 }
+
+
 
 #myDiv{
 

@@ -190,6 +190,9 @@ d3.csv(dataPath) //Read in Data
 			.data(nestedData)
 			.enter()
 			.append("rect")
+			.attr("id", function(d){
+				return d.key;
+			})
 			.attr("x", xScale1(0) )
 			.attr("y", function(d) { return yScale1(d.key); })
 			.attr("width", function(d) { return xScale1(d.value); })
@@ -204,7 +207,7 @@ d3.csv(dataPath) //Read in Data
 					.attr("x",150)
 					.attr("y",15+i*20)
 					.text("Total Caps: "+d.value)
-				})
+			})
 			.on("mouseout",function(d){ //When we hover out of area it goes back to regular color and does not display total caps
 				d3.select(this)
 					.style("fill", "pink")
@@ -229,7 +232,7 @@ d3.csv(dataPath) //Read in Data
 		mySVG.append("text")
 			.attr("x", width1-300)
 			.attr("y",height1+60)
-			.style("font-size", "25px")
+			.style("font-size", "20px")
 			.text("Total Caps by Country");
 
 
@@ -285,7 +288,6 @@ d3.csv(dataPath) //Read in Data
 				})
 				.attr("r",8)
 				.on("mouseover", function(d,i){ //ADD HOVER EFFECT, when we hover over total caps are displayed and color changes
-					console.log(this);
 					d3.select(this)
 						.style("fill","#FFFF66")
 					mySVG3.append("text")
@@ -298,12 +300,14 @@ d3.csv(dataPath) //Read in Data
 						.attr("x",150)
 						.attr("y",15+i*20)
 						.text("Total Caps: "+parseInt(d.value.cap*23)) //Each team has 23 players so this is easiest way
-				
-						
+					mySVG.selectAll("rect[id="+d.key+"]")
+						.style("fill","#E75480")
 				})
 				.on("mouseout",function(d){ //When we hover out of area it goes back to regular color and does not display country
 					d3.select(this)
 						.style("fill", "gold")
+					mySVG.selectAll("rect")
+						.style("fill","pink")
 
 					d3.selectAll(".tooltip")
 						.remove();
@@ -328,7 +332,7 @@ d3.csv(dataPath) //Read in Data
 			.append("text")
 				.text("Average Caps by Country")
 				.style("fill","black")
-				.style("font-size", "15px")
+				.style("font-size", "20px")
 				.attr("x",(width2-margin2)/1.8)
 				.attr("y",margin2);
 	
@@ -336,8 +340,8 @@ d3.csv(dataPath) //Read in Data
 			.append("text")
 				.text("Average Age by Country")
 				.style("fill","black")
-				.attr("transform","rotate(-90,0,"+(margin2-15)+") translate(" + (-200)+",0)")
-				.style("font-size", "15px")
+				.attr("transform","rotate(-90,0,"+(margin2-15)+") translate(" + (-175)+",0)")
+				.style("font-size", "20px")
 	
 	
 				
@@ -482,7 +486,7 @@ d3.csv(dataPath) //Read in Data
 					.attr("x", function(d){
 							return xScale(d.key);
 						})
-					.style("font-size", "28px")
+					.style("font-size", 32)
 					.attr("y",height-margin-10)
 					.text(function(d){
 						return d.key;
@@ -499,9 +503,9 @@ d3.csv(dataPath) //Read in Data
 			{
 			mySVG2.append("text")
 
-				.attr("x", 50)
+				.attr("x", width-250)
 				.attr("y", height-50)
-				.style("font-size", "25px")
+				.style("font-size", "20px")
 				.text("Average Caps by Position");			
 			}
 			else
@@ -509,7 +513,7 @@ d3.csv(dataPath) //Read in Data
 				mySVG2.append("text")
 					.attr("x", 50)             
 					.attr("y", height-50)
-					.style("font-size", "25px") 
+					style("font-size", "20px")
 					.text("Average Age by Position");
 			}
 		}
