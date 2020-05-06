@@ -510,10 +510,10 @@ d3.csv(dataPath) //Read in Data
 			}
 			else
 			{
-				mySVG2.append("text")
-					.attr("x", 50)             
+			mySVG2.append("text")
+					.attr("x", width-250)             
 					.attr("y", height-50)
-					style("font-size", "20px")
+					.style("font-size", "20px")
 					.text("Average Age by Position");
 			}
 		}
