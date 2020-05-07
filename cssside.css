@@ -4,19 +4,15 @@ body {
 
 div
 {
-	width: 600px;
 	height: 1200px;
 }
 
-.column {
-  float: left;
-  width: 33.33%;
-}
 
 #bar1{
 	margin-left: 60px;
 	font-size: 18px;
 }
+
 
 #bar2{
 	margin-left:150px;
@@ -43,15 +39,16 @@ div
 
 }
 
-
+.column {
+  float: left;
+  width: 33.33%;
+}
 
 .row:after {
   content: "";
   display: table;
   clear: both;	
 }
-
-
 
 #myDiv{
 
@@ -80,8 +77,6 @@ div
 }
 
 #myDiv3{
-
- 	position: fixed;
     bottom: 0;
     right: 0;
 

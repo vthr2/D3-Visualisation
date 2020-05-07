@@ -344,11 +344,7 @@ d3.csv(dataPath) //Read in Data
 				.style("font-size", "20px")
 	
 	
-				
-		
-	
-
-	
+			
 	
 		//Add dropdown list to filter based on country and populate drop down list
 		var dropDownMenu = d3.select("#dropDownList");
@@ -373,6 +369,10 @@ d3.csv(dataPath) //Read in Data
 			if(menuItem != "All")
 			{
 				filterData(menuItem);
+			}
+			else
+			{
+				updateTimeline(nestedData2)
 			}
 			
 		})
@@ -486,7 +486,7 @@ d3.csv(dataPath) //Read in Data
 					.attr("x", function(d){
 							return xScale(d.key);
 						})
-					.style("font-size", 32)
+					.style("font-size", 26)
 					.attr("y",height-margin-10)
 					.text(function(d){
 						return d.key;
