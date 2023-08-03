@@ -9,4 +9,4 @@ By hovering over a country in the bar chart on the left, that chart lights up an
 The bar chart on the right displays information about average caps or age for each position. 
 It is possible to filter by country by selecting a country from the drop down list. 
 To change the bar chart from caps to age or vice versa press the button Age or Caps.
-The visualisation is hosted on https://steady-swan-49e073.netlify.app/)https://steady-swan-49e073.netlify.app/
+The visualisation is hosted on https://steady-swan-49e073.netlify.app/
